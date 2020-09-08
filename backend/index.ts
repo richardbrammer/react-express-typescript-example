@@ -6,8 +6,13 @@ const app = express();
 const PORT = process.env.PORT ?? 3000;
 
 sequelize.sync().then(() => {
-    console.log('connected to DB');
+    console.log('[backend]: Connected to DB');
 });
+
+/**
+ * parse application/json
+ */
+app.use(express.json());
 
 /**
  * TODO add react app on root
