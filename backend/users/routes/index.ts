@@ -1,6 +1,8 @@
 import express from 'express';
 import api from '../api';
-import { UserLogin } from '../interfaces/user-login.interface';
+import passport from 'passport';
+
+import { isAuthenticated } from '../../helpers/is-authenticated.helper';
 
 const router = express.Router();
 
@@ -10,15 +12,17 @@ router.post('/register', (req, res) => {
     });
 });
 
-router.post('/login', (req, res) => {
-    console.log(req.body);
-    const body: UserLogin = req.body;
-    api.loginUser(body).then(user => res.send(user));
-    
+router.post('/login', passport.authenticate('local'), (req, res) => {
+    res.send(req.user)
 });
 
 router.post('/logout', (req, res) => {
+    req.logout();
+    res.send(200);
+});
 
+router.get('/current', isAuthenticated, (req, res) => {
+    res.send(req.user);
 });
 
 export default router;

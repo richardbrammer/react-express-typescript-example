@@ -1,8 +1,11 @@
+import bcrypt from 'bcrypt';
+
 import { UserRegister } from '../interfaces/user-register.interface';
 import { UserLogin } from '../interfaces/user-login.interface';
 import { UserModel } from '../models/user.model';
 
-import bcrypt from 'bcrypt';
+import passport from 'passport';
+import PassportLocal from 'passport-local';
 
 const registerUser = async (user: UserRegister) => {
     // TODO check rules
@@ -22,25 +25,44 @@ const registerUser = async (user: UserRegister) => {
     return user.password;
 };
 
-const loginUser = async (user: UserLogin) => {
-    const existingUser = await UserModel.findOne({ where: { email: user.email }});
-    if (!existingUser) {
-        return 403;
-    }
+const setupPassport = async () => {
+    passport.use(new PassportLocal.Strategy({
+        usernameField: 'email',
+        passwordField: 'password',
+        session: true
+    }, async (email, password, done) => {
+        const existingUser = await UserModel.findOne({ where: { email: email }});
+        if (!existingUser) {
+            return done(null, false);
+            
+        }   
+    
+        const passwordCorrect = bcrypt.compareSync(password, existingUser!.password);
+        if (!passwordCorrect) {
+            return done(null, false);
+        }
+        return done(null, existingUser);
+    }));
 
-    const passwordCorrect = bcrypt.compareSync(user.password, existingUser.password);
-    if (!passwordCorrect) {
-        return 403;
-    }
-    return user.email;
-};
+    passport.serializeUser((user: UserModel, done) => {
+        done(null, user.id);
+    });
+      
+    passport.deserializeUser((id: number, done) => {
+        UserModel.findByPk(id).then(user => {
+            done(null, user);
+        }).catch(err => {
+            done(err, null);
+        });
+    });
+}
 
 const logoutUser = async () => {
 
 };
 
 export default {
+    logoutUser,
     registerUser,
-    loginUser,
-    logoutUser
+    setupPassport
 }
