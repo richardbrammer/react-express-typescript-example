@@ -7,4 +7,8 @@ export class UserModel extends Model {
     public password!: string; // bcrypted
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
+
+    public hidePassword = (): void => {
+        this.password = '__protected__';
+    }
 }

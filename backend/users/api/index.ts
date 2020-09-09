@@ -1,7 +1,6 @@
 import bcrypt from 'bcrypt';
 
 import { UserRegister } from '../interfaces/user-register.interface';
-import { UserLogin } from '../interfaces/user-login.interface';
 import { UserModel } from '../models/user.model';
 
 import passport from 'passport';
@@ -21,8 +20,9 @@ const registerUser = async (user: UserRegister) => {
     const password = bcrypt.hashSync(user.password, 10);
     user.password = password;
     
-    await UserModel.create(user);
-    return user.password;
+    const createdUser = await UserModel.create(user);
+    createdUser.hidePassword();
+    return createdUser;
 };
 
 const setupPassport = async () => {
@@ -34,13 +34,13 @@ const setupPassport = async () => {
         const existingUser = await UserModel.findOne({ where: { email: email }});
         if (!existingUser) {
             return done(null, false);
-            
         }   
     
         const passwordCorrect = bcrypt.compareSync(password, existingUser!.password);
         if (!passwordCorrect) {
             return done(null, false);
         }
+        existingUser.hidePassword();
         return done(null, existingUser);
     }));
 
@@ -50,6 +50,9 @@ const setupPassport = async () => {
       
     passport.deserializeUser((id: number, done) => {
         UserModel.findByPk(id).then(user => {
+            if (user) {
+                user.hidePassword();
+            }
             done(null, user);
         }).catch(err => {
             done(err, null);
@@ -57,12 +60,7 @@ const setupPassport = async () => {
     });
 }
 
-const logoutUser = async () => {
-
-};
-
 export default {
-    logoutUser,
     registerUser,
     setupPassport
 }
