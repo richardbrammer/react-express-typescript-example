@@ -20,6 +20,10 @@ function App() {
     setState({ currentUser: user });
   }
 
+  const logoutHandler = () => {
+    setState({ currentUser: null })
+  }
+
   /** get the actual user */
   useEffect(() => {
     axios(config.apiUrl + '/users/current').then((response: AxiosResponse<User | null>) => {
@@ -36,7 +40,7 @@ function App() {
     <div className="container mt-5">
       <Switch>
         <Route exact path="/">
-          <Account user={state.currentUser} />
+          <Account user={state.currentUser} onLogout={logoutHandler} />
         </Route>
         <Route path="/login">
           <Login onLogin={setUser}/>
