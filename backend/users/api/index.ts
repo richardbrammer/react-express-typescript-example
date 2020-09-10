@@ -7,8 +7,6 @@ import passport from 'passport';
 import PassportLocal from 'passport-local';
 
 const registerUser = async (user: UserRegister) => {
-    // TODO check rules
-    
     const existingUser = await UserModel.findOne({ where: { email: user.email }});
     if (existingUser) {
         return 403;

@@ -21,12 +21,13 @@ router.post('/register', [
 ], (req: any, res: any) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ errors: errors.array() });
     }
-
+ 
     api.registerUser(req.body).then(email => res.send(email)).catch(() => {
         res.send(500);
     });
+
 });
 
 router.post('/login', [

@@ -1,18 +1,22 @@
-import React, { FormEvent, ChangeEvent } from 'react';
-import { useState } from 'react';
+import React, { useState, FormEvent, ChangeEvent } from 'react';
+import { Link, useHistory } from 'react-router-dom';
+import axios, { AxiosResponse } from 'axios';
+
 import { UserLogin } from './interfaces/user-login.interface';
-import { Link, Router, useHistory } from 'react-router-dom';
+import { User } from './interfaces/user.interface';
+import { config } from '../config/config';
 
 export interface State {
     form: UserLogin,
-    submitResult: string | null;
+    submitError: string | null;
+    submitSuccess: string | null;
 }
 
-function Login() {
+function Login({ onLogin }: { onLogin: CallableFunction }) {
 
     const emptyForm: UserLogin = { email: '', password: ''};
     const history = useHistory();
-    const initalState = { submitResult: null, form: emptyForm };
+    const initalState: State = { form: emptyForm, submitError: null, submitSuccess: null };
     const [state, setState] = useState<State>(initalState);
 
     const handleEmailChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -23,23 +27,14 @@ function Login() {
         setState({ ...state, form: { ...state.form, password: event.target.value }});
     }
 
-
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        fetch('http://localhost:3000/api/v1/users/login', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(state.form),
-        }).then((response) => {
-            if (response.status !== 200) {
-                setState({...state, submitResult: response.statusText });
-            } else {
-                history.push('/');
-            }
+        axios.post(config.apiUrl + '/users/login', state.form).then((response: AxiosResponse<User | null>) => {
+            onLogin(response.data);
+            history.push('/');
+        }).catch(err => {
+            setState({...state, submitError: err });
         });
 
     }
@@ -58,7 +53,7 @@ function Login() {
                 </div>
                 <button type="submit" className="btn btn-primary">Submit</button>
             </form>
-            { state.submitResult &&
+            { state.submitError &&
                 <div className="alert alert-warning mt-3" role="alert">Email unknown or password incorrect. Please try again or <Link to="/register">create an account</Link>.</div>
             }
             <p className="mt-3">If you don't have an account, <Link to="/register">register here</Link>.</p>

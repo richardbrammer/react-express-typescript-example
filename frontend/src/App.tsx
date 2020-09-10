@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Link, Route, BrowserRouter, Switch } from 'react-router-dom';
+import { Route, BrowserRouter, Switch } from 'react-router-dom';
+import axios, { AxiosResponse } from 'axios';
 
+import { config } from './config/config';
 import { Account, Login, Register } from './users';
 import { User } from './users/interfaces/user.interface';
 import './App.css';
+import RegistrationSuccessful from './users/RegistrationSuccessul';
 
 export interface State {
   currentUser: null | User;
@@ -13,41 +16,36 @@ function App() {
 
   const [state, setState] = useState<State>({ currentUser: null });
 
+  const setUser = (user: User | null) => {
+    setState({ currentUser: user });
+  }
+
   /** get the actual user */
   useEffect(() => {
-    fetch('http://localhost:3000/api/v1/users/current').then((response: Response) => {
-      console.log(response);
-      // setState({ currentUser: response.body });
-    }).catch(() => {
-      setState({ currentUser: null });
+    axios(config.apiUrl + '/users/current').then((response: AxiosResponse<User | null>) => {
+       setUser(response.data);
+    }).catch(err => {
+      setUser(null);
     });
   }, []);
 
+  
+
   return (
     <BrowserRouter>
-    <div className="container">
-      <ul>
-        { state.currentUser
-          ? <li><Link to="/">Account</Link></li>
-          : <div>
-              <li><Link to="/login">Login</Link></li>
-              <li><Link to="/register">Register</Link></li>
-            </div>
-        }
-        
-      </ul>
-
-      <hr />
-
+    <div className="container mt-5">
       <Switch>
         <Route exact path="/">
           <Account user={state.currentUser} />
         </Route>
         <Route path="/login">
-          <Login/>
+          <Login onLogin={setUser}/>
         </Route>
         <Route path="/register">
           <Register />
+        </Route>
+        <Route path="/registration-successful">
+          <RegistrationSuccessful />
         </Route>
       </Switch>
     </div>
