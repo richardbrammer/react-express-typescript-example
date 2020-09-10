@@ -4,6 +4,7 @@ import sequelize from './db/sequelize';
 import auth from './users/api';
 import passport from 'passport';
 import session from 'express-session';
+import cors from 'cors';
 
 const app = express();
 const PORT = process.env.PORT ?? 3000;
@@ -21,6 +22,7 @@ auth.setupPassport();
  * parse application/json
  */
 app.use(express.json());
+app.use(cors());
 
 /**
  * TODO add react app on root
