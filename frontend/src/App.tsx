@@ -27,7 +27,7 @@ function App() {
   /** get the actual user */
   useEffect(() => {
     axios(config.apiUrl + '/users/current').then((response: AxiosResponse<User | null>) => {
-       setUser(response.data);
+      setUser(response.data);
     }).catch(err => {
       setUser(null);
     });
