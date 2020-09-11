@@ -1,3 +1,6 @@
+# React Express Typescript Example
+This is an example web app, showing an Express back end with PostgreSQL and a React front end. The example uses Docker to setup the back end and the database.
+
 
 ## Technologies
 * NodeJS / npm
@@ -21,7 +24,7 @@ $ npm i
 
 ## Development
 
-1. Start the back end using `docker-compose`:
+### 1. Start the back end using `docker-compose`:
 
 ```
 $ docker-compose build
@@ -30,7 +33,7 @@ $ docker-compose up
 
 The back end is available at `http://localhost:3000/api/v1/`.
 
-2. Start the front end using `npm`:
+### 2. Start the front end using `npm`:
 
 ```
 $ cd frontend
@@ -53,9 +56,12 @@ $ npm test
 
 ### Back end
 
+The back end may be tested using the provided Postman collection. 
 
 ## To-do & Improvements
 
 * Improve test coverage
 * Create Docker container for front end
 * Front end form validation
+* Add actual test cases to Postman collection
+* Add unit tests to back end
